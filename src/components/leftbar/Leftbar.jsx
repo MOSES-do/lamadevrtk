@@ -17,7 +17,7 @@ import { useSelector } from "react-redux"
 
 
 export default function Leftbar() {
-  const name = useSelector((state) => state.user.name)
+  const name = useSelector((state) => state.users.name)
   return (
     <div className="leftbar">
       <div className="leftbarWrapper">
