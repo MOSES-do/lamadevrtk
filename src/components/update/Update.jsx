@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Warning from "../warning/Warning";
 import UsersList from './UsersList'
 import "./update.css";
-import { useSelector, useDispatch } from "react-redux"
-import {
-  selectAllUsers,
-  getUsersStatus, getUsersError, fetchUsers, update
-} from "../../redux/userSlice"
+import { useSelector } from "react-redux"
+import { selectAllUsers } from "../../redux/userSlice"
 
 let timerID = 0;
 const Timer = () => {
@@ -41,11 +38,8 @@ export default function Update() {
     setIndex(index + 1);
   }, [index]);
 
-  const dispatch = useDispatch();
 
   const users = useSelector(selectAllUsers)
-  const usersStatus = useSelector(getUsersStatus)
-  const error = useSelector(getUsersError)
 
 
   const [name, setName] = useState("");
@@ -53,31 +47,12 @@ export default function Update() {
 
   const nameSetter = useCallback((e) => setName(e.target.value), [])
 
-  useEffect(() => {
-    if (usersStatus === 'idle') {
-      dispatch(fetchUsers())
-    }
-
-    return () => {
-      console.log("Cleanup succeeded");
-      return usersStatus === 'succeeded'
-    }
-  }, [usersStatus, dispatch])
 
 
 
 
   const UserView = () => {
-    if (usersStatus === 'loading') {
-      return <p>Loading...</p>
-    } else if (usersStatus === 'succeeded') {
-      console.log("Yaay")
-      return (
-        <UsersList users={users} />
-      )
-    } else if (usersStatus === "failed") {
-      return <p>{error}</p>
-    }
+    return <UsersList users={users} />
   }
 
 
@@ -88,7 +63,7 @@ export default function Update() {
       <div className="updateWrapper">
         <h3 className="updateTitle">Update Your Account</h3>
         <UserView />
-        {/* {JSON.stringify(users)} */}
+        {JSON.stringify(users)}
 
         <Warning />
 

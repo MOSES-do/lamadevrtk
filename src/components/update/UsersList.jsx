@@ -2,8 +2,9 @@ import { useMemo, useEffect } from 'react';
 
 
 const UsersList = ({ users }) => {
-    // useEffect
-    // console.log(user)
+    useEffect(() => {
+        console.log("Component rendered")
+    }, [users])
     console.log("user changed")
     const orderedPosts = useMemo(() => {
         console.log("useMemo loaded")
