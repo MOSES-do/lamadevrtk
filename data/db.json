@@ -2,8 +2,17 @@
     "users": [
         {
             "id": 1,
-            "name": "Moses",
-            "password": "123"
+            "name": "Moses Esumei",
+            "email": "archer.me24@gmail.com",
+            "password": "123",
+            "country": "NIGERIA"
+        },
+        {
+            "id": 2,
+            "name": "Moses Esumei",
+            "email": "archer.me24@gmail.com",
+            "password": "123",
+            "country": "NIGERIA"
         }
     ]
 }

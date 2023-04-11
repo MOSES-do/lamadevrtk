@@ -1,30 +1,85 @@
-import React from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Warning from "../warning/Warning";
+import UsersList from './UsersList'
 import "./update.css";
-import { useState } from "react";
-import { useSelector } from "react-redux"
-import { selectAllUsers } from "../../redux/userSlice"
+import { useSelector, useDispatch } from "react-redux"
+import {
+  selectAllUsers,
+  getUsersStatus, getUsersError, fetchUsers, update
+} from "../../redux/userSlice"
 
+let timerID = 0;
+const Timer = () => {
+  const [timer, setTimer] = useState(0);
+
+  useEffect(() => {
+    timerID++;
+    const timerId = setInterval(() => {
+      setTimer((currentTime) => {
+        console.log(`Timer ${timerID} starts ${currentTime}`)
+        return currentTime + 1
+      })
+    }, 1000)
+
+    return () => {
+      console.log("timer clerared")
+      clearInterval(timerId)
+    }
+  }, [])
+
+  return (
+    <>
+      <div>Timer : {timer} </div>
+    </>
+  )
+}
 
 
 export default function Update() {
+  const [index, setIndex] = useState(0)
+  const updateIndex = useCallback(() => {
+    setIndex(index + 1);
+  }, [index]);
+
+  const dispatch = useDispatch();
+
   const users = useSelector(selectAllUsers)
+  const usersStatus = useSelector(getUsersStatus)
+  const error = useSelector(getUsersError)
+
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
+  const nameSetter = useCallback((e) => setName(e.target.value), [])
+
+  useEffect(() => {
+    if (usersStatus === 'idle') {
+      dispatch(fetchUsers())
+    }
+
+    return () => {
+      console.log("Cleanup succeeded");
+      return usersStatus === 'succeeded'
+    }
+  }, [usersStatus, dispatch])
+
+
 
 
   const UserView = () => {
-    return (
-      users.map((user, index) => (
-        <div key={index}>
-          <h3>{user.name}</h3>
-          <h3>{user.email}</h3>
-        </div>
+    if (usersStatus === 'loading') {
+      return <p>Loading...</p>
+    } else if (usersStatus === 'succeeded') {
+      console.log("Yaay")
+      return (
+        <UsersList users={users} />
       )
-      ))
+    } else if (usersStatus === "failed") {
+      return <p>{error}</p>
+    }
   }
+
 
 
 
@@ -32,10 +87,13 @@ export default function Update() {
     <div className="update">
       <div className="updateWrapper">
         <h3 className="updateTitle">Update Your Account</h3>
+        <UserView />
+        {/* {JSON.stringify(users)} */}
+
         <Warning />
+
         <button className="delete">Delete Account</button>
         <div className="updateContainer">
-          <UserView />
           <form>
             <div className="formItem">
               <label>Profile Picture</label>
@@ -54,7 +112,7 @@ export default function Update() {
                 className="formInput"
                 type="text"
                 placeholder={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={nameSetter}
               />
             </div>
             <div className="formItem">
@@ -76,6 +134,9 @@ export default function Update() {
               Update
             </button>
           </form>
+          <Timer key={index} />
+          {index}
+          <button onClick={updateIndex}>Update index</button>
         </div>
       </div>
     </div>

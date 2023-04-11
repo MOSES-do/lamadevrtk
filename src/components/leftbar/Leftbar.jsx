@@ -10,14 +10,17 @@ import HearingIcon from '@mui/icons-material/Hearing'
 import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
 
-import React from "react";
 import MenuLink from "../menuLink/MenuLink";
 import "./leftbar.css";
 import { useSelector } from "react-redux"
 
 
 export default function Leftbar() {
-  const name = useSelector((state) => state.users.name)
+  const name = useSelector((state) => state.users)
+
+
+
+
   return (
     <div className="leftbar">
       <div className="leftbarWrapper">
@@ -33,6 +36,7 @@ export default function Leftbar() {
         <MenuLink icon={<SettingsIcon />} text="Settings" />
         {name && <MenuLink icon={<LogoutIcon />} text="Logout" />}
       </div>
+
     </div>
   );
 }
