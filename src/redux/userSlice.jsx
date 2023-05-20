@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from "axios"
 
-const USERS_URL = "http://localhost:3500/users";
+const USERS_URL = "https://jsonplaceholder.typicode.com/users";
 
 
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
@@ -10,6 +10,18 @@ export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
         return [...response.data]
     } catch (err) {
         return err.message
+    }
+})
+
+export const deleteUser = createAsyncThunk('users/deleteUser', async (initUsers) => {
+    const { id } = initUsers;
+
+    try {
+        const response = await axios.delete(`${USERS_URL}/${id}`)
+        if (response?.status === 200) return initUsers;
+        return `${response?.status}: ${response?.statusText}`
+    } catch (err) {
+        return err.message;
     }
 })
 
@@ -27,15 +39,7 @@ const initialState = {
 const usersSlice = createSlice({
     name: "users",
     initialState,
-    reducers: {
-        update(state, action) {
-            return {
-                ...state, users: action.payload.map((user, name) => (
-                    user.name.toLowerCase().includes(name) ? console.log(name, user.name) : null
-                ))
-            }
-        }
-    },
+    reducers: {},
 
     extraReducers(builder) {
         builder.addCase(fetchUsers.pending, (state, action) => {
@@ -49,12 +53,21 @@ const usersSlice = createSlice({
                 state.status = 'failed'
                 state.error = action.error.message
             })
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                if (!action.payload?.id) {
+                    console.log('Delete could not complete')
+                    console.log(action.payload);
+                    return
+                }
+                const { id } = action.payload;
+                const users = state.users.filter(user => user.id !== id);
+                state.users = users;
+            })
     }
 
 })
 
 
-export const { update, remove } = usersSlice.actions;
 export const selectAllUsers = (state) => state.users.users
 export const getUsersStatus = (state) => state.users.status;
 export const getUsersError = (state) => state.users.error;

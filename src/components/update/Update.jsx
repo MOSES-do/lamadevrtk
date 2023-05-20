@@ -1,49 +1,22 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Warning from "../warning/Warning";
 import UsersList from './UsersList'
 import "./update.css";
 import { useSelector, useDispatch } from "react-redux"
 import {
-  selectAllUsers,
-  getUsersStatus, getUsersError, fetchUsers, update
+  getUsersStatus, getUsersError, fetchUsers,
 } from "../../redux/userSlice"
 
-let timerID = 0;
-const Timer = () => {
-  const [timer, setTimer] = useState(0);
 
-  useEffect(() => {
-    timerID++;
-    const timerId = setInterval(() => {
-      setTimer((currentTime) => {
-        console.log(`Timer ${timerID} starts ${currentTime}`)
-        return currentTime + 1
-      })
-    }, 1000)
 
-    return () => {
-      console.log("timer clerared")
-      clearInterval(timerId)
-    }
-  }, [])
-
-  return (
-    <>
-      <div>Timer : {timer} </div>
-    </>
-  )
-}
 
 
 export default function Update() {
-  const [index, setIndex] = useState(0)
-  const updateIndex = useCallback(() => {
-    setIndex(index + 1);
-  }, [index]);
 
+  const { users } = useSelector((state) => state.users)
   const dispatch = useDispatch();
 
-  const users = useSelector(selectAllUsers)
+  // const users = useSelector(selectAllUsers)
   const usersStatus = useSelector(getUsersStatus)
   const error = useSelector(getUsersError)
 
@@ -51,7 +24,7 @@ export default function Update() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const nameSetter = useCallback((e) => setName(e.target.value), [])
+  const nameSetter = (e) => setName(e.target.value)
 
   useEffect(() => {
     if (usersStatus === 'idle') {
@@ -64,21 +37,33 @@ export default function Update() {
     }
   }, [usersStatus, dispatch])
 
+  console.log(users);
+
+  let render = ""
+  // const UserView = () => {
+  //   if (usersStatus === 'loading') {
+  //     return <p>Loading...</p>
+  //   } else if (usersStatus === 'succeeded') {
+  //     console.log("Yaay")
+  //     return (
+  //       <UsersList users={users} />
+  //     )
+  //   } else if (usersStatus === "failed") {
+  //     return <p>{error}</p>
+  //   }
+  // }
 
 
 
-  const UserView = () => {
-    if (usersStatus === 'loading') {
-      return <p>Loading...</p>
-    } else if (usersStatus === 'succeeded') {
-      console.log("Yaay")
-      return (
-        <UsersList users={users} />
-      )
-    } else if (usersStatus === "failed") {
-      return <p>{error}</p>
-    }
+  if (usersStatus === 'loading') {
+    render = <p>Loading...</p>
+  } else if (usersStatus === 'succeeded') {
+    render =
+      users.length > 0 ? <UsersList users={users} /> : "Users list empty"
+  } else if (usersStatus === "failed") {
+    render = <p>{error}</p>
   }
+
 
 
 
@@ -87,7 +72,7 @@ export default function Update() {
     <div className="update">
       <div className="updateWrapper">
         <h3 className="updateTitle">Update Your Account</h3>
-        <UserView />
+        {render}
         {/* {JSON.stringify(users)} */}
 
         <Warning />
@@ -134,9 +119,7 @@ export default function Update() {
               Update
             </button>
           </form>
-          <Timer key={index} />
-          {index}
-          <button onClick={updateIndex}>Update index</button>
+
         </div>
       </div>
     </div>
